@@ -1,5 +1,7 @@
 package Domain;
 
+import UI.RBTUI;
+
 public class RedBlackTree {
     private Node root;
     private final Node NIL;
@@ -85,8 +87,9 @@ public class RedBlackTree {
 
 
     private Node minimum(Node node){
-        if(node.left != NIL)
-            minimum(node.left);
+        while(node.left != NIL){
+            node = node.left;
+        }
 
         return node;
     }
@@ -120,6 +123,7 @@ public class RedBlackTree {
             }
         }
         else{
+
             // z has both left and right children
             y = minimum(z.right);
             OriginalColor = y.color;
@@ -142,17 +146,20 @@ public class RedBlackTree {
                 //if x is a leaf
                 x.parent = y;
 
+
+            if(y.color == Color.BLACK && x.color == Color.RED) {
+                //black node with red child
+                x.color = Color.BLACK;
+                OriginalColor = Color.RED;
+            }
+
             transplant(z, y);
             y.left = z.left;
             z.left.parent = y;
             y.color = z.color;
 
-            if(y.color == Color.BLACK && x.color == Color.RED) {
-                //black node with red child
-                x.color = Color.BLACK;
-                return;
-            }
         }
+
 
         if(OriginalColor == Color.BLACK)
             deleteFixUp(x);
@@ -160,8 +167,131 @@ public class RedBlackTree {
 
 
 
-    private void deleteFixUp(Node x){
-        //implement the 6 cases
+    private void deleteFixUp(Node doubleBlack){
+        //implement the 6 cases of double black
+        if(doubleBlack == root){
+            //case 1
+            doubleBlack.color = Color.BLACK;
+            return;
+        }
+        if(doubleBlack.parent.color == Color.BLACK){
+            if(doubleBlack.parent.left == doubleBlack){
+                //double black on the left
+                if(doubleBlack.parent.right.color == Color.RED){
+                    //case 2
+                    LeftRotate(doubleBlack.parent);
+                    doubleBlack.parent.color = Color.RED;
+                    doubleBlack.parent.parent.color = Color.BLACK;
+                    deleteNode(doubleBlack);
+                }
+
+                if(doubleBlack.parent.right.color == Color.BLACK){
+                    if(doubleBlack.parent.right.left.color == Color.BLACK){
+                        if(doubleBlack.parent.right.right.color == Color.BLACK){
+                            //case 3
+                            doubleBlack.color = Color.BLACK;
+                            doubleBlack.parent.right.color = Color.RED;
+                            deleteFixUp(doubleBlack.parent);
+                        }
+                        else{
+                            //case 6
+                            LeftRotate(doubleBlack.parent);
+                            doubleBlack.color = Color.BLACK;
+                            doubleBlack.parent.parent.color = doubleBlack.parent.color;
+                            doubleBlack.parent.color = Color.BLACK;
+                            doubleBlack.parent.parent.right.color = Color.BLACK;
+                            return;
+                        }
+                    }
+                    else{
+                        //case 5
+                        RightRotate(doubleBlack.parent.right);
+                        doubleBlack.parent.right.color = Color.BLACK;
+                        doubleBlack.parent.right.right.color = Color.RED;
+                        deleteNode(doubleBlack);
+                    }
+
+                }
+
+            }
+            else{
+                //double black on the right
+                if(doubleBlack.parent.left.color == Color.RED){
+                    //case 2
+                    RightRotate(doubleBlack.parent);
+                    doubleBlack.parent.color = Color.RED;
+                    doubleBlack.parent.parent.color = Color.BLACK;
+                    deleteNode(doubleBlack);
+                }
+
+                if(doubleBlack.parent.left.color == Color.BLACK){
+                    if(doubleBlack.parent.left.right.color == Color.BLACK){
+                        if(doubleBlack.parent.left.left.color == Color.BLACK){
+                            //case 3
+                            doubleBlack.color = Color.BLACK;
+                            doubleBlack.parent.left.color = Color.RED;
+                            deleteFixUp(doubleBlack.parent);
+                        }
+                        else{
+                            //case 6
+                            RightRotate(doubleBlack.parent);
+                            doubleBlack.color = Color.BLACK;
+                            doubleBlack.parent.parent.color = doubleBlack.parent.color;
+                            doubleBlack.parent.color = Color.BLACK;
+                            doubleBlack.parent.parent.left.color = Color.BLACK;
+                            return;
+                        }
+                    }
+                    else{
+                        //case 5
+                        LeftRotate(doubleBlack.parent.left);
+                        doubleBlack.parent.left.color = Color.BLACK;
+                        doubleBlack.parent.left.left.color = Color.RED;
+                        deleteNode(doubleBlack);
+                    }
+
+                }
+            }
+        }
+        else{
+            // case 4 or case 6
+            if(doubleBlack.parent.left == doubleBlack) {
+                // double black on the left
+                if(doubleBlack.parent.right.right.color == Color.BLACK){
+                    //case 4
+                    doubleBlack.parent.color = Color.BLACK;
+                    doubleBlack.parent.right.color = Color.RED;
+                    return;
+                }
+                else{
+                    //case 6
+                    LeftRotate(doubleBlack.parent);
+                    doubleBlack.color = Color.BLACK;
+                    doubleBlack.parent.parent.color = doubleBlack.parent.color;
+                    doubleBlack.parent.color = Color.BLACK;
+                    doubleBlack.parent.parent.right.color = Color.BLACK;
+                    return;
+                }
+            }
+            else{
+                // double black on the right
+                if(doubleBlack.parent.left.left.color == Color.BLACK){
+                    //case 4
+                    doubleBlack.parent.color = Color.BLACK;
+                    doubleBlack.parent.left.color = Color.RED;
+                    return;
+                }
+                else{
+                    //case 6
+                    RightRotate(doubleBlack.parent);
+                    doubleBlack.color = Color.BLACK;
+                    doubleBlack.parent.parent.color = doubleBlack.parent.color;
+                    doubleBlack.parent.color = Color.BLACK;
+                    doubleBlack.parent.parent.left.color = Color.BLACK;
+                    return;
+                }
+            }
+        }
 
     }
 
