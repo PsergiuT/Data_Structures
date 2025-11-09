@@ -11,7 +11,7 @@ public class RedBlackTreeFactory {
 
     public RedBlackTreeFactory(){
         this.redBlackTree = new RedBlackTree();
-        try(BufferedReader br = new BufferedReader(new FileReader("D:\\Data_Structures\\Red-BlackTree\\src\\File\\RedBlackTree.csv"))){
+        try(BufferedReader br = new BufferedReader(new FileReader("D:\\Data_Structures\\Red-BlackTree\\src\\File\\RBT.csv"))){
             String line;
             line = br.readLine();
             String[] parts = line.split(",");

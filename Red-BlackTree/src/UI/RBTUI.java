@@ -25,7 +25,7 @@ public class RBTUI extends JPanel
 
         if (root != NIL) {
             Graphics2D g2 = (Graphics2D) g;
-            g2.setStroke(new BasicStroke(3));
+            g2.setStroke(new BasicStroke(1));
             drawNode(g2, root, getWidth() / 2, 50, getWidth() / 4);
         }
     }
@@ -49,7 +49,7 @@ public class RBTUI extends JPanel
         }
 
         // Draw the node (circle)
-        int radius = 25;
+        int radius = 9;
         g.setColor(node.isRed() ? Color.RED : Color.BLACK);
         g.fillOval(x - radius, y - radius, radius * 2, radius * 2);
 
@@ -58,6 +58,6 @@ public class RBTUI extends JPanel
         g.drawOval(x - radius, y - radius, radius * 2, radius * 2);
 
         g.setColor(Color.WHITE);
-        g.drawString(String.valueOf(node.value), x - 5, y + 5);
+        g.drawString(String.valueOf(node.value), x - 6, y + 4);
     }
 }
