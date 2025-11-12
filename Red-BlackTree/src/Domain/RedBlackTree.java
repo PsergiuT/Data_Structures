@@ -71,249 +71,6 @@ public class RedBlackTree {
     }
 
 
-    private void transplant(Node old, Node newNode){
-        // updates the child of the parent of old to point to new
-        // updates the parent of new to point to old`s parent
-
-        if(old.parent == NIL)
-            root = newNode;
-        else if(old.parent.right == old)
-            old.parent.right = newNode;
-        else
-            old.parent.left = newNode;
-
-        newNode.parent = old.parent;
-    }
-
-
-    private Node minimum(Node node){
-        while(node.left != NIL){
-            node = node.left;
-        }
-
-        return node;
-    }
-
-    private void deleteNode(Node z){
-        // z - node to be deleted
-        // y - placeholder for z (the smallest number after z) only in case 3
-        // x - placeholder for z in case 1 and 2 || placeholder for y in case 3
-        Color OriginalColor = z.color;
-        Node x;
-        Node y;
-
-        if(z.left == NIL){
-            // z has no left child
-            x = z.right;
-            transplant(z, x);
-            if(z.color == Color.BLACK && x.color == Color.RED) {
-                //red child -> black child
-                x.color = Color.BLACK;
-                return;
-            }
-        }
-        else if(z.right == NIL){
-            // z has no right child
-            x = z.left;
-            transplant(z, x);
-            if(z.color == Color.BLACK && x.color == Color.RED) {
-                //red child -> black child
-                x.color = Color.BLACK;
-                return;
-            }
-        }
-        else{
-
-            // z has both left and right children
-            y = minimum(z.right);
-            OriginalColor = y.color;
-            x = y.right;
-
-            if(z.color == Color.BLACK && y.color == Color.RED) {
-                //red child -> black child
-                y.color = Color.BLACK;
-            }
-
-            if(y.parent != z){
-                // transplant the right node of y into y`s place
-                transplant(y, x);
-
-                // connect y`s right child to z.right
-                y.right = z.right;
-                z.right.parent = y;
-            }
-            else
-                //if x is a leaf
-                x.parent = y;
-
-
-            if(y.color == Color.BLACK && x.color == Color.RED) {
-                //black node with red child
-                x.color = Color.BLACK;
-                OriginalColor = Color.RED;
-            }
-
-            transplant(z, y);
-            y.left = z.left;
-            z.left.parent = y;
-            y.color = z.color;
-
-        }
-
-
-        if(OriginalColor == Color.BLACK)
-            deleteFixUp(x);
-    }
-
-
-
-    private void deleteFixUp(Node doubleBlack){
-        //implement the 6 cases of double black
-        if(doubleBlack == root){
-            //case 1
-            doubleBlack.color = Color.BLACK;
-            return;
-        }
-        if(doubleBlack.parent.color == Color.BLACK){
-            if(doubleBlack.parent.left == doubleBlack){
-                //double black on the left
-                if(doubleBlack.parent.right.color == Color.RED){
-                    //case 2
-                    LeftRotate(doubleBlack.parent);
-                    doubleBlack.parent.color = Color.RED;
-                    doubleBlack.parent.parent.color = Color.BLACK;
-                    deleteNode(doubleBlack);
-                }
-
-                if(doubleBlack.parent.right.color == Color.BLACK){
-                    if(doubleBlack.parent.right.left.color == Color.BLACK){
-                        if(doubleBlack.parent.right.right.color == Color.BLACK){
-                            //case 3
-                            doubleBlack.color = Color.BLACK;
-                            doubleBlack.parent.right.color = Color.RED;
-                            deleteFixUp(doubleBlack.parent);
-                        }
-                        else{
-                            //case 6
-                            LeftRotate(doubleBlack.parent);
-                            doubleBlack.color = Color.BLACK;
-                            doubleBlack.parent.parent.color = doubleBlack.parent.color;
-                            doubleBlack.parent.color = Color.BLACK;
-                            doubleBlack.parent.parent.right.color = Color.BLACK;
-                            return;
-                        }
-                    }
-                    else{
-                        //case 5
-                        RightRotate(doubleBlack.parent.right);
-                        doubleBlack.parent.right.color = Color.BLACK;
-                        doubleBlack.parent.right.right.color = Color.RED;
-                        deleteNode(doubleBlack);
-                    }
-
-                }
-
-            }
-            else{
-                //double black on the right
-                if(doubleBlack.parent.left.color == Color.RED){
-                    //case 2
-                    RightRotate(doubleBlack.parent);
-                    doubleBlack.parent.color = Color.RED;
-                    doubleBlack.parent.parent.color = Color.BLACK;
-                    deleteNode(doubleBlack);
-                }
-
-                if(doubleBlack.parent.left.color == Color.BLACK){
-                    if(doubleBlack.parent.left.right.color == Color.BLACK){
-                        if(doubleBlack.parent.left.left.color == Color.BLACK){
-                            //case 3
-                            doubleBlack.color = Color.BLACK;
-                            doubleBlack.parent.left.color = Color.RED;
-                            deleteFixUp(doubleBlack.parent);
-                        }
-                        else{
-                            //case 6
-                            RightRotate(doubleBlack.parent);
-                            doubleBlack.color = Color.BLACK;
-                            doubleBlack.parent.parent.color = doubleBlack.parent.color;
-                            doubleBlack.parent.color = Color.BLACK;
-                            doubleBlack.parent.parent.left.color = Color.BLACK;
-                            return;
-                        }
-                    }
-                    else{
-                        //case 5
-                        LeftRotate(doubleBlack.parent.left);
-                        doubleBlack.parent.left.color = Color.BLACK;
-                        doubleBlack.parent.left.left.color = Color.RED;
-                        deleteNode(doubleBlack);
-                    }
-
-                }
-            }
-        }
-        else{
-            // case 4 or case 6
-            if(doubleBlack.parent.left == doubleBlack) {
-                // double black on the left
-                if(doubleBlack.parent.right.right.color == Color.BLACK){
-                    //case 4
-                    doubleBlack.parent.color = Color.BLACK;
-                    doubleBlack.parent.right.color = Color.RED;
-                    return;
-                }
-                else{
-                    //case 6
-                    LeftRotate(doubleBlack.parent);
-                    doubleBlack.color = Color.BLACK;
-                    doubleBlack.parent.parent.color = doubleBlack.parent.color;
-                    doubleBlack.parent.color = Color.BLACK;
-                    doubleBlack.parent.parent.right.color = Color.BLACK;
-                    return;
-                }
-            }
-            else{
-                // double black on the right
-                if(doubleBlack.parent.left.left.color == Color.BLACK){
-                    //case 4
-                    doubleBlack.parent.color = Color.BLACK;
-                    doubleBlack.parent.left.color = Color.RED;
-                    return;
-                }
-                else{
-                    //case 6
-                    RightRotate(doubleBlack.parent);
-                    doubleBlack.color = Color.BLACK;
-                    doubleBlack.parent.parent.color = doubleBlack.parent.color;
-                    doubleBlack.parent.color = Color.BLACK;
-                    doubleBlack.parent.parent.left.color = Color.BLACK;
-                    return;
-                }
-            }
-        }
-
-    }
-
-
-
-    public void delete(int key){
-        Node current = root;
-
-        while(current.value != key && current != NIL){
-            if(key < current.value)
-                current = current.left;
-            else
-                current = current.right;
-        }
-
-        if(current == NIL)
-            return;
-        deleteNode(current);
-    }
-
-
-
     public void insert(int value){
         Node newNode = new Node(value);
         newNode.left = this.NIL;
@@ -407,9 +164,188 @@ public class RedBlackTree {
         }
     }
 
+
+    private void transplant(Node old, Node newNode){
+        // updates the child of the parent of old to point to new
+        // updates the parent of new to point to old`s parent
+
+        if(old.parent == NIL)
+            root = newNode;
+        else if(old.parent.right == old)
+            old.parent.right = newNode;
+        else
+            old.parent.left = newNode;
+
+        newNode.parent = old.parent;
+    }
+
+
+    private Node minimum(Node node){
+        while(node.left != NIL){
+            node = node.left;
+        }
+
+        return node;
+    }
+
+
+    private Node findSibling(Node node){
+        return isLeftChild(node) ? node.parent.right : node.parent.left;
+    }
+
+    private boolean isLeftChild(Node node){
+        return node.parent.left == node;
+    }
+
+
+    public void delete(int data){
+        deleteNode(root, data);
+    }
+
+
+    private void deleteNode(Node node, int data) {
+        if (node == NIL) {
+            return;
+        }
+
+        if(data == node.value){
+            if(node.right == NIL || node.left == NIL){
+                //the node that has to be deleted has only one child
+                deleteOneChild(node);
+            }
+            else{
+                //node has 2 children
+                //we replace the current node`s data with it`s successor data
+                //then we remove the successor
+                Node successor = minimum(node.right);
+                node.value = successor.value;
+                //deleteNode(successor, successor.value);
+                deleteNode(node.right, successor.value);
+            }
+        }
+
+        if (data > node.value)
+            deleteNode(node.right, data);
+        else
+            deleteNode(node.left, data);
+
+    }
+
+
+    private void deleteOneChild(Node node) {
+        Node child = node.right == NIL ? node.left : node.right;
+
+        //move child into parent`s place
+        transplant(node, child);
+
+        if(node.color == Color.BLACK){
+            if(child.color == Color.RED){
+                //if child is Red we make it black
+                child.color = Color.BLACK;
+            }
+            else{
+                //we have a double black case
+                deleteCase1(child);
+            }
+        }
+        //if the parent`s color is Red we don`t have to do anything
+    }
+
+
+    private void deleteCase1(Node doubleBlack){
+        if(doubleBlack == root){
+            return;
+        }
+        deleteCase2(doubleBlack);
+    }
+
+
+    private void deleteCase2(Node doubleBlack){
+        Node sibling = findSibling(doubleBlack);
+        if(doubleBlack.parent.color == Color.BLACK &&  sibling.color == Color.RED){
+            if(isLeftChild(doubleBlack)){
+                LeftRotate(doubleBlack.parent);
+            }
+            else{
+                RightRotate(doubleBlack.parent);
+            }
+            doubleBlack.parent.color = Color.RED;
+            sibling.color = Color.BLACK;
+            deleteCase4(doubleBlack);
+        }
+        deleteCase3(doubleBlack);
+    }
+
+
+    private void deleteCase3(Node doubleBlack){
+        Node sibling = findSibling(doubleBlack);
+        if(doubleBlack.parent.color == Color.BLACK && sibling.color == Color.BLACK &&
+                sibling.left.color == Color.BLACK && sibling.right.color == Color.BLACK){
+
+            sibling.color = Color.RED;
+            deleteCase1(doubleBlack.parent);
+        }
+        deleteCase4(doubleBlack);
+    }
+
+
+    private void deleteCase4(Node doubleBlack){
+        Node sibling = findSibling(doubleBlack);
+        if(doubleBlack.parent.color == Color.RED && sibling.color == Color.BLACK &&
+                sibling.left.color == Color.BLACK && sibling.right.color == Color.BLACK){
+
+            sibling.color = Color.RED;
+            doubleBlack.parent.color = Color.BLACK;
+            return;
+        }
+        deleteCase5(doubleBlack);
+    }
+
+
+    private void deleteCase5(Node doubleBlack){
+        Node sibling = findSibling(doubleBlack);
+        if(isLeftChild(doubleBlack)){
+            if(sibling.color == Color.BLACK && sibling.left.color == Color.RED &&
+                    sibling.right.color == Color.BLACK){
+
+                RightRotate(sibling);
+                sibling.color = Color.RED;
+                sibling.parent.color = Color.BLACK;
+            }
+        }
+        else{
+            if(sibling.color == Color.BLACK && sibling.left.color == Color.BLACK &&
+                    sibling.right.color == Color.RED){
+
+                LeftRotate(sibling);
+                sibling.color = Color.RED;
+                sibling.parent.color = Color.BLACK;
+            }
+        }
+        deleteCase6(doubleBlack);
+    }
+
+
+    private void deleteCase6(Node doubleBlack){
+        Node sibling = findSibling(doubleBlack);
+
+        sibling.color = sibling.parent.color;
+        doubleBlack.parent.color = Color.BLACK;
+        if(isLeftChild(doubleBlack)) {
+            sibling.right.color = Color.BLACK;
+            LeftRotate(doubleBlack.parent);
+        }
+        else{
+            sibling.left.color = Color.BLACK;
+            LeftRotate(doubleBlack.parent);
+        }
+    }
+
+
     public Node getRoot() {
         return root;
     }
+
 
     public Node getNIL() {
         return NIL;
